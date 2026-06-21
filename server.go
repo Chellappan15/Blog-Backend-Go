@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/Chellappan15/Blog-Backend-Go/api"
+	"blog-backend/api"
 )
 
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
-	mux.HandleFunc("/posts/getposts", api.GetPosts)
+	mux.HandleFunc("/posts/getposts", posts.GetPosts)
 
 	fmt.Println("Server started at :8080")
 	http.ListenAndServe(":8080", mux)
