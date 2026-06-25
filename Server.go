@@ -1,9 +1,11 @@
 package main
 
 import (
+	posts "blog-backend/api"
+	"blog-backend/database"
 	"fmt"
 	"net/http"
-	"blog-backend/api"
+	"os"
 )
 
 func main() {
@@ -12,6 +14,13 @@ func main() {
 	mux.HandleFunc("/posts/getposts", posts.GetPosts)
 
 	fmt.Println("Server started at :8080")
+	db, error := database.Connect(os.Getenv("DATABASE_CONNECTION_STRING"))
+	if error != nil {
+		fmt.Println(error)
+		return
+	}
+	defer db.Close()
+	fmt.Println("Connected to database")
 	http.ListenAndServe(":8080", mux)
 }
 
