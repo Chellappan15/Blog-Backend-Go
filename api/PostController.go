@@ -1,20 +1,23 @@
 package posts
 
 import (
+	"blog-backend/database"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Post struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 var mockDB = []Post{
-	{ID: 1, Title: "Introduction to Go", Content: "Go is fast and simple."},
-	{ID: 2, Title: "Understanding Struct Tags", Content: "Struct tags bridge Go and JSON."},
+	{ID: 1, Title: "Introduction to Go", Description: "Go is fast and simple."},
+	{ID: 2, Title: "Understanding Struct Tags", Description: "Struct tags bridge Go and JSON."},
 }
 
 func GetPosts(w http.ResponseWriter, r *http.Request) {
@@ -41,10 +44,19 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mockDB = append(mockDB, newPost)
+	if newPost.Title == "" || newPost.Description == "" {
+		http.Error(w, "Fill out all the details", http.StatusBadRequest)
+	}
+	fmt.Println("Got the request")
+
+	postAdded, dbError := database.DB.Db.Exec(database.PostAddQuery(), newPost.Title, newPost.Description)
+	fmt.Println(postAdded)
+
+	if dbError != nil {
+		http.Error(w, dbError.Error(), http.StatusBadRequest)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Println("Post added successfully ", mockDB)
 	json.NewEncoder(w).Encode("Post added successfully")
 }
 

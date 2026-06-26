@@ -8,6 +8,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+type DB_Client struct {
+	Db *sql.DB
+}
+
+var DB DB_Client
+
 func Connect(connectionString string) (*sql.DB, error) {
 	db, error := sql.Open("mysql", connectionString)
 
@@ -18,6 +24,8 @@ func Connect(connectionString string) (*sql.DB, error) {
 	if error = db.Ping(); error != nil {
 		return nil, fmt.Errorf("error connecting to database: %w", error)
 	}
+
+	DB.Db = db
 
 	return db, nil
 }
